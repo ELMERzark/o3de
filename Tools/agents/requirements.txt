@@ -1,0 +1,19 @@
+# Microsoft Agent Framework (Python)
+# 注：MAF 仍在迭代中，若 API 改动，见 docs_claud/practice/multi_agent_design.md 参考链接
+agent-framework>=1.0.0
+
+# DeepSeek API 是 OpenAI 兼容的，MAF 可用自带 OpenAI client
+# 如果装 MAF 时未自动带 openai SDK，显式加：
+openai>=1.55.0
+
+# 环境变量
+python-dotenv>=1.0.1
+
+# 类型 / 校验
+pydantic>=2.9.0
+
+# CLI 美化（可选）
+rich>=13.9.0
+
+# ripgrep 我们直接调系统命令，但如果想纯 Python 内搜索可用：
+# pygrep

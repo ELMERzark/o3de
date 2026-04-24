@@ -1,0 +1,18 @@
+{
+  "module": "InputAndEvents",
+  "files": [
+    {
+      "path": "Code/Framework/AzFramework/AzFramework/Input/System/InputSystemComponent.cpp",
+      "signatures": [
+        "void InputSystemComponent::Reflect(AZ::ReflectContext* context)",
+        "void InputSystemComponent::Activate()",
+        "void InputSystemComponent::Deactivate()",
+        "void InputSystemComponent::TickInput()",
+        "void InputSystemComponent::CreateEnabledInputDevices()",
+        "void InputSystemComponent::DestroyEnabledInputDevices()"
+      ],
+      "reflects": ["void InputSystemComponent::Reflect(AZ::ReflectContext* context)", "InputDevice*.Reflect(...) for devices"],
+      "ebus_usages": ["InputSystemRequestBus (RecreateEnabledInputDevices)", "InputSystemNotificationBus (OnPreInputUpdate/OnPostInputUpdate)"]
+    }
+  ]
+}

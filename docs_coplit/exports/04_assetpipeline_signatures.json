@@ -1,0 +1,41 @@
+{
+  "module": "AssetPipeline",
+  "files": [
+    {
+      "path": "Code/Tools/AssetProcessor/native/utilities/PlatformConfiguration.h",
+      "signatures": [
+        "explicit PlatformConfiguration(QObject* pParent = nullptr);",
+        "static void Reflect(AZ::ReflectContext* context);",
+        "bool InitializeFromConfigFiles(const QString& absoluteSystemRoot, const QString& absoluteAssetRoot, const QString& projectPath, bool addPlatformConfigs = true, bool addGemsConfigs = true);",
+        "static bool MergeConfigFileToSettingsRegistry(AZ::SettingsRegistryInterface& settingsRegistry, const AZ::IO::PathView& filePathView);",
+        "const AZStd::vector<AssetBuilderSDK::PlatformInfo>& GetEnabledPlatforms() const;"
+      ],
+      "reflects": ["static void Reflect(AZ::ReflectContext* context);"],
+      "ebus_usages": []
+    },
+    {
+      "path": "Code/Tools/AssetProcessor/native/utilities/UuidManager.h",
+      "signatures": [
+        "virtual AZ::Outcome<AZ::Uuid, AZStd::string> GetUuid(const SourceAssetReference& sourceAsset) = 0;",
+        "AZ::Outcome<AZ::Uuid, AZStd::string> GetUuid(const SourceAssetReference& sourceAsset) override;",
+        "static void Reflect(AZ::ReflectContext* context);",
+        "void FileChanged(AZ::IO::PathView file) override;",
+        "void EnableGenerationForTypes(AZStd::unordered_set<AZStd::string> types) override;"
+      ],
+      "reflects": ["static void Reflect(AZ::ReflectContext* context);"],
+      "ebus_usages": []
+    },
+    {
+      "path": "Code/Tools/AssetProcessor/native/utilities/ProductOutputUtil.h",
+      "signatures": [
+        "static AZStd::string GetInterimPrefix(AZ::s64 scanfolderId);",
+        "static AZStd::string GetFinalPrefix(AZ::s64 scanfolderId);",
+        "static void GetInterimProductPath(QString& outputFilename, AZ::s64 sourceScanfolderId);",
+        "static void GetFinalProductPath(QString& outputFilename, AZ::s64 sourceScanfolderId);",
+        "static void FinalizeProduct(AZStd::shared_ptr<AssetDatabaseConnection> db, const PlatformConfiguration* platformConfig, const SourceAssetReference& sourceAsset, AZStd::vector<AssetBuilderSDK::JobProduct>& products, AZStd::string_view platformIdentifier);"
+      ],
+      "reflects": [],
+      "ebus_usages": []
+    }
+  ]
+}

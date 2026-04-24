@@ -1,0 +1,25 @@
+{
+  "module": "Physics",
+  "files": [
+    {
+      "path": "Gems/WhiteBox/Code/Source/Components/WhiteBoxColliderComponent.cpp",
+      "signatures": [
+        "void WhiteBoxColliderComponent::Reflect(AZ::ReflectContext* context)",
+        "void WhiteBoxColliderComponent::Activate()",
+        "void WhiteBoxColliderComponent::Deactivate()",
+        "void WhiteBoxColliderComponent::OnTransformChanged(const AZ::Transform& local, const AZ::Transform& world)"
+      ],
+      "reflects": ["void WhiteBoxColliderComponent::Reflect(AZ::ReflectContext* context)"],
+      "ebus_usages": [
+        "AzPhysics::SceneInterface usage via AZ::Interface<AzPhysics::SceneInterface>::Get()",
+        "Physics::SystemRequestBus::Broadcast(&Physics::SystemRequests::CreateShape, ...)"
+      ],
+      "call_sites": [
+        "GetSceneHandle",
+        "AddSimulatedBody",
+        "RemoveSimulatedBody",
+        "GetSimulatedBodyFromHandle"
+      ]
+    }
+  ]
+}
