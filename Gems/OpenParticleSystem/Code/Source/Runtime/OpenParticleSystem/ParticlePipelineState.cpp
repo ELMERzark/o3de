@@ -16,9 +16,17 @@
 
 namespace OpenParticle
 {
-    void EmitterInstance::Setup(AZ::Data::Asset<AZ::RPI::MaterialAsset>& mat)
+    void EmitterInstance::Setup(AZ::Data::Asset<AZ::RPI::MaterialAsset>& mat, const MaterialPropertyOverrideMap& overrides)
     {
         m_materialAsset = mat;
+        m_materialOverrides = overrides;
+        // Preload the material asset so it's ready when Create() needs it.
+        // Without this, material sub-assets from the particle archive may not be
+        // loaded when the particle system activates on level load.
+        if (m_materialAsset.GetId().IsValid() && !m_materialAsset.IsReady())
+        {
+            m_materialAsset.QueueLoad();
+        }
         m_material = AZ::RPI::Material::Create(m_materialAsset);
 
         if (!m_material)
@@ -27,8 +35,13 @@ namespace OpenParticle
                 "EmitterInstance::Setup - Material::Create() returned null. "
                 "The MaterialAsset or MaterialTypeAsset may not be fully loaded.");
             m_needsPipelineRebuild = true;
+            m_needsMaterialOverrideApply = !m_materialOverrides.empty();
             return;
         }
+
+        // Overrides have to land before the pipeline is built: a property can drive a shader option or
+        // enable/disable a shader item, which changes which draw items ReBuildPipeline produces.
+        m_needsMaterialOverrideApply = !ApplyMaterialOverrides();
 
         ReBuildPipeline();
 
@@ -42,6 +55,24 @@ namespace OpenParticle
         }
     }
 
+    bool EmitterInstance::ApplyMaterialOverrides()
+    {
+        if (!m_material)
+        {
+            return m_materialOverrides.empty();
+        }
+
+        if (!ApplyMaterialPropertyOverrides(m_material, m_materialOverrides))
+        {
+            return false;
+        }
+
+        // Keep the recorded change id in step so TryRebuildPipeline does not mistake our own property
+        // writes for an external material reload and rebuild the pipeline every frame.
+        m_materialChangeId = m_material->GetCurrentChangeId();
+        return true;
+    }
+
     void EmitterInstance::Reset()
     {
         m_perDrawSrgs.clear();
@@ -51,7 +82,7 @@ namespace OpenParticle
 
     bool EmitterInstance::TryRebuildPipeline()
     {
-        if (!m_needsPipelineRebuild)
+        if (!m_needsPipelineRebuild && !m_needsMaterialOverrideApply)
         {
             return false;
         }
@@ -72,6 +103,23 @@ namespace OpenParticle
             else
             {
                 return false;
+            }
+        }
+
+        // Retry any overrides that could not be compiled earlier. This must happen before the change id
+        // check below, since applying them is what moves the change id forward.
+        if (m_needsMaterialOverrideApply)
+        {
+            if (!ApplyMaterialOverrides())
+            {
+                return false;
+            }
+            m_needsMaterialOverrideApply = false;
+
+            // Overrides landed but the pipeline was already valid, so there is nothing left to rebuild.
+            if (!m_needsPipelineRebuild && !m_shaders.empty())
+            {
+                return true;
             }
         }
 

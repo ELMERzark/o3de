@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
+
 #pragma once
 
 #include <AzCore/std/allocator.h>
@@ -76,22 +77,22 @@ namespace AZStd
         // 23.2.4.1 construct/copy/destroy
         /// Construct an empty vector.
         AZ_FORCE_INLINE vector()
-            : m_start(0)
-            , m_last(0)
-            , m_end(0)
+            : m_start(nullptr)
+            , m_last(nullptr)
+            , m_end(nullptr)
         {}
 
         AZ_FORCE_INLINE explicit vector(const allocator_type& allocator)
-            : m_start(0)
-            , m_last(0)
-            , m_end(0)
+            : m_start(nullptr)
+            , m_last(nullptr)
+            , m_end(nullptr)
             , m_allocator(allocator)
         {}
 
         explicit vector(size_type numElements)
-            : m_start(0)
-            , m_last(0)
-            , m_end(0)
+            : m_start(nullptr)
+            , m_last(nullptr)
+            , m_end(nullptr)
         {
             if (numElements > 0)
             {
@@ -104,9 +105,9 @@ namespace AZStd
         }
 
         vector(size_type numElements, const_reference value)
-            : m_start(0)
-            , m_last(0)
-            , m_end(0)
+            : m_start(nullptr)
+            , m_last(nullptr)
+            , m_end(nullptr)
         {
             if (numElements > 0)
             {
@@ -118,9 +119,9 @@ namespace AZStd
             }
         }
         vector(size_type numElements, const_reference value, const allocator_type& allocator)
-            : m_start(0)
-            , m_last(0)
-            , m_end(0)
+            : m_start(nullptr)
+            , m_last(nullptr)
+            , m_end(nullptr)
             , m_allocator(allocator)
         {
             if (numElements > 0)
@@ -142,7 +143,7 @@ namespace AZStd
             construct_iter(first, last, is_integral<InputIterator>());
         }
 
-        template<class R, class = enable_if_t<Internal::container_compatible_range<R, value_type>>>
+        template<Internal::container_compatible_range<value_type> R>
         vector(from_range_t, R&& rg, const allocator_type& alloc = Allocator())
             : m_allocator(alloc)
         {
@@ -165,24 +166,24 @@ namespace AZStd
             }
             else
             {
-                m_start = 0;
-                m_last = 0;
+                m_start = nullptr;
+                m_last = nullptr;
             }
             m_end   = m_last;
         }
 
         vector(this_type&& rhs)
-            : m_start(0)
-            , m_last(0)
-            , m_end(0)
+            : m_start(nullptr)
+            , m_last(nullptr)
+            , m_end(nullptr)
             , m_allocator(rhs.m_allocator)
         {
             assign_rv(AZStd::move(rhs));
         }
         vector(this_type&& rhs, const allocator_type& allocator)
-            :  m_start(0)
-            , m_last(0)
-            , m_end(0)
+            :  m_start(nullptr)
+            , m_last(nullptr)
+            , m_end(nullptr)
             , m_allocator(allocator)
         {
             assign_rv(AZStd::move(rhs));
@@ -223,9 +224,9 @@ namespace AZStd
                 m_last = rhs.m_last;
                 m_end = rhs.m_end;
 
-                rhs.m_start = 0;
-                rhs.m_last = 0;
-                rhs.m_end = 0;
+                rhs.m_start = nullptr;
+                rhs.m_last = nullptr;
+                rhs.m_end = nullptr;
             }
         }
 
@@ -301,8 +302,8 @@ namespace AZStd
             return emplacedElement;
         }
 
-        template<class R>
-        auto append_range(R&& rg) -> enable_if_t<Internal::container_compatible_range<R, T>>
+        template<Internal::container_compatible_range<T> R>
+        void append_range(R&& rg)
         {
             insert_range(end(), AZStd::forward<R>(rg));
         }
@@ -397,9 +398,9 @@ namespace AZStd
                             // Free memory if we need to.
                             deallocate_memory(0);
 
-                            m_start = 0;
-                            m_end = 0;
-                            m_last = 0;
+                            m_start = nullptr;
+                            m_end = nullptr;
+                            m_last = nullptr;
                         }
                     }
                 }
@@ -599,8 +600,8 @@ namespace AZStd
             assign_iter(first, last, is_integral<InputIterator>());
         }
 
-        template<class R>
-        auto assign_range(R&& rg) -> enable_if_t<Internal::container_compatible_range<R, value_type>>
+        template<Internal::container_compatible_range<value_type> R>
+        void assign_range(R&& rg)
         {
             if constexpr (is_lvalue_reference_v<R>)
             {
@@ -795,10 +796,11 @@ namespace AZStd
             return insert_impl(insertPos, first, last, is_integral<InputIterator>());
         }
 
-        template<class R>
-        auto insert_range(AZStd::nullptr_t, R&&) -> enable_if_t<Internal::container_compatible_range<R, value_type>, iterator> = delete;
-        template<class R>
-        auto insert_range(const_iterator insertPos, R&& rg) -> enable_if_t<Internal::container_compatible_range<R, value_type>, iterator>
+        template<Internal::container_compatible_range<value_type> R>
+        iterator insert_range(AZStd::nullptr_t, R&&) = delete;
+
+        template<Internal::container_compatible_range<value_type> R>
+        iterator insert_range(const_iterator insertPos, R&& rg)
         {
             if constexpr (is_lvalue_reference_v<R>)
             {
@@ -920,7 +922,7 @@ namespace AZStd
             if (m_allocator != allocator)
             {
                 allocator_type newAllocator = allocator;
-                if (m_start != 0)
+                if (m_start != nullptr)
                 {
                     // if we have something allocated make sure we re-alloc the vector to the new allocator.
                     size_type size = m_last - m_start;
@@ -989,9 +991,9 @@ namespace AZStd
         */
         AZ_FORCE_INLINE void leak_and_reset()
         {
-            m_start = 0;
-            m_end = 0;
-            m_last = 0;
+            m_start = nullptr;
+            m_end = nullptr;
+            m_last = nullptr;
 
 #ifdef AZSTD_HAS_CHECKED_ITERATORS
             orphan_all();
@@ -1033,8 +1035,8 @@ namespace AZStd
                 }
                 else
                 {
-                    newStart = 0;
-                    newLast = 0;
+                    newStart = nullptr;
+                    newLast = nullptr;
                 }
 
                 // Destroy old array
@@ -1306,7 +1308,7 @@ namespace AZStd
     template <class InputIt, class Alloc = allocator>
     vector(InputIt, InputIt, Alloc = Alloc()) -> vector<iter_value_t<InputIt>, Alloc>;
 
-    template<class R, class Alloc = allocator, class = enable_if_t<ranges::input_range<R>>>
+    template<ranges::input_range R, class Alloc = allocator>
     vector(from_range_t, R&&, Alloc = Alloc()) -> vector<ranges::range_value_t<R>, Alloc>;
 
     //#pragma region Vector equality/inequality

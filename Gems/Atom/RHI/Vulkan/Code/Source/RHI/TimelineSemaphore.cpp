@@ -23,7 +23,7 @@ namespace AZ
         {
             VkSemaphoreCreateInfo createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            createInfo.pNext = 0;
+            createInfo.pNext = nullptr;
             createInfo.flags = 0;
 
             VkSemaphoreTypeCreateInfo timelineCreateInfo{};
@@ -37,7 +37,7 @@ namespace AZ
 
             const VkResult result =
                 device.GetContext().CreateSemaphore(device.GetNativeDevice(), &createInfo, VkSystemAllocator::Get(), &m_nativeSemaphore);
-            AssertSuccess(result);
+            VK_RESULT_ASSERT(result);
 
             RETURN_RESULT_IF_UNSUCCESSFUL(ConvertResult(result));
 

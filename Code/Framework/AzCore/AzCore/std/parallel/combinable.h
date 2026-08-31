@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZSTD_PARALLEL_COMBINABLE_H
-#define AZSTD_PARALLEL_COMBINABLE_H 1
+
+#pragma once
 
 #include <AzCore/std/parallel/atomic.h>
 #include <AzCore/std/functional.h>
@@ -26,7 +26,7 @@ namespace AZStd
         {
             for (int i = 0; i < NUM_BUCKETS; ++i)
             {
-                m_buckets[i].store(NULL, memory_order_release);
+                m_buckets[i].store(nullptr, memory_order_release);
             }
         }
 
@@ -36,7 +36,7 @@ namespace AZStd
         {
             for (int i = 0; i < NUM_BUCKETS; ++i)
             {
-                m_buckets[i].store(NULL, memory_order_release);
+                m_buckets[i].store(nullptr, memory_order_release);
             }
         }
 
@@ -67,10 +67,10 @@ namespace AZStd
                 while (node)
                 {
                     Node* next = node->m_next;
-                    m_allocator.deallocate(node, sizeof(Node), alignment_of<Node>::value);
+                    m_allocator.deallocate(node, sizeof(Node), alignment_of_v<Node>);
                     node = next;
                 }
-                m_buckets[i].store(NULL, memory_order_release);
+                m_buckets[i].store(nullptr, memory_order_release);
             }
         }
 
@@ -104,7 +104,7 @@ namespace AZStd
         template<typename F>
         T combine(F f)
         {
-            Node* currentNode = NULL;
+            Node* currentNode = nullptr;
             int currentNodeBucket = 0;
 
             for (int i = 0; i < NUM_BUCKETS; ++i)
@@ -182,12 +182,12 @@ namespace AZStd
         {
             for (int i = 0; i < NUM_BUCKETS; ++i)
             {
-                m_buckets[i].store(NULL, memory_order_release);
+                m_buckets[i].store(nullptr, memory_order_release);
 
                 Node* otherNode = other.m_buckets[i].load(memory_order_acquire);
                 while (otherNode)
                 {
-                    Node* newNode = static_cast<Node*>(m_allocator.allocate(sizeof(Node), alignment_of<Node>::value));
+                    Node* newNode = static_cast<Node*>(m_allocator.allocate(sizeof(Node), alignment_of_v<Node>));
                     newNode->m_threadId = otherNode->m_threadId;
                     newNode->m_value = otherNode->m_value;
                     newNode->m_next = m_buckets[i].load(memory_order_acquire);
@@ -210,14 +210,14 @@ namespace AZStd
                 }
                 node = node->m_next;
             }
-            return NULL;
+            return nullptr;
         }
 
         Node* AddNode(thread_id threadId)
         {
             size_t bucketIndex = (size_t)(threadId.m_id) % NUM_BUCKETS;
 
-            Node* newNode = static_cast<Node*>(m_allocator.allocate(sizeof(Node), alignment_of<Node>::value));
+            Node* newNode = static_cast<Node*>(m_allocator.allocate(sizeof(Node), alignment_of_v<Node>));
             newNode->m_threadId = threadId;
             newNode->m_value = m_initFunc();
 
@@ -236,6 +236,3 @@ namespace AZStd
         AZStd::function<T ()> m_initFunc;
     };
 }
-
-#endif
-#pragma once

@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZSTD_BINARY_SEMAPHORE_H
-#define AZSTD_BINARY_SEMAPHORE_H
+
+#pragma once
 
 #include <AzCore/base.h>
 #include <AzCore/std/chrono/chrono.h>
@@ -38,13 +38,13 @@ namespace AZStd
         binary_semaphore(bool initialState = false)
         {
             m_event = CreateEventW(nullptr, false, initialState, nullptr);
-            AZ_Assert(m_event != NULL, "CreateEvent error: %d\n", GetLastError());
+            AZ_Assert(m_event != nullptr, "CreateEvent error: %d\n", GetLastError());
         }
         binary_semaphore(const char* name, bool initialState = false)
         {
             (void)name; // name is used only for debug, if we pass it to the semaphore it will become named semaphore
             m_event = CreateEventW(nullptr, false, initialState, nullptr);
-            AZ_Assert(m_event != NULL, "CreateEvent error: %d\n", GetLastError());
+            AZ_Assert(m_event != nullptr, "CreateEvent error: %d\n", GetLastError());
         }
 
         binary_semaphore(const binary_semaphore&) = delete;
@@ -196,6 +196,3 @@ namespace AZStd
 #endif //
     };
 }
-
-#endif // AZSTD_SEMAPHORE_H
-#pragma once

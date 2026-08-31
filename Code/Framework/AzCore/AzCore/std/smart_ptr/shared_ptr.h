@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZSTD_SMART_PTR_SHARED_PTR
-#define AZSTD_SMART_PTR_SHARED_PTR
+
+#pragma once
 
 //////////////////////////////////////////////////////////////////////////
 // Standard C++0x 20.8.10.2, which was drafted from boost.
@@ -96,7 +96,7 @@ namespace AZStd
         template< class X, class Y, class T >
         inline void sp_enable_shared_from_this(AZStd::shared_ptr<X> const* ppx, Y const* py, AZStd::enable_shared_from_this< T > const* pe)
         {
-            if (pe != 0)
+            if (pe != nullptr)
             {
                 pe->_internal_accept_owner(ppx, const_cast< Y* >(py));
             }
@@ -140,7 +140,7 @@ namespace AZStd
         typedef T value_type;
         typedef typename AZStd::Internal::shared_ptr_traits<T>::reference reference;
         shared_ptr()
-            : px(0)
+            : px(nullptr)
             , pn()                // never throws in 1.30+
         {
         }
@@ -185,7 +185,7 @@ namespace AZStd
         }
         template<class Y>
         shared_ptr(weak_ptr<Y> const& r, AZStd::Internal::sp_nothrow_tag)
-            : px(0)
+            : px(nullptr)
             , pn(r.pn, AZStd::Internal::sp_nothrow_tag())                                                                            // never throws
         {
             if (!pn.empty())
@@ -310,7 +310,7 @@ namespace AZStd
             , pn()                                      // never throws
         {
             pn.swap(r.pn);
-            r.px = 0;
+            r.px = nullptr;
         }
         template<class Y>
         shared_ptr(shared_ptr<Y>&& r, typename AZStd::Internal::sp_enable_if_convertible<Y, T>::type = AZStd::Internal::sp_empty())
@@ -318,7 +318,7 @@ namespace AZStd
             , pn()         // never throws
         {
             pn.swap(r.pn);
-            r.px = 0;
+            r.px = nullptr;
         }
         shared_ptr& operator=(shared_ptr&& r)     // never throws
         {
@@ -352,7 +352,7 @@ namespace AZStd
         template<class Y>
         void reset(Y* p)                    // Y must be complete
         {
-            AZ_Assert(p == 0 || p != px, "Self reset error"); // catch self-reset errors
+            AZ_Assert(p == nullptr || p != px, "Self reset error"); // catch self-reset errors
             this_type(p).swap(*this);
         }
         template<class Y, class D>
@@ -363,12 +363,12 @@ namespace AZStd
         void reset(shared_ptr<Y> const& r, T* p)          { this_type(r, p).swap(*this); }
         reference operator* () const // never throws
         {
-            AZ_Assert(px != 0, "Pointer is NULL, you can't dereference!");
+            AZ_Assert(px != nullptr, "Pointer is NULL, you can't dereference!");
             return *px;
         }
         T* operator-> () const  // never throws
         {
-            AZ_Assert(px != 0, "Pointer is NULL, you can't dereference!");
+            AZ_Assert(px != nullptr, "Pointer is NULL, you can't dereference!");
             return px;
         }
 
@@ -376,10 +376,10 @@ namespace AZStd
 
         typedef T* this_type::* unspecified_bool_type;
         operator unspecified_bool_type() const {
-            return px == 0 ? 0 : &this_type::px;
+            return px == nullptr ? nullptr : &this_type::px;
         }                                                                              // never throws
         // operator! is redundant, but some compilers need it
-        bool operator! () const { return px == 0; } // never throws
+        bool operator! () const { return px == nullptr; } // never throws
         bool unique() const     { return pn.unique(); }     // never throws
         long use_count() const  { return pn.use_count(); }  // never throws
         void swap(shared_ptr<T>& other)  // never throws
@@ -446,6 +446,3 @@ namespace AZStd
         return static_cast<D*>(p._internal_get_deleter(aztypeid(D)));
     }
 } // namespace AZStd
-
-#endif  // #ifndef AZSTD_SMART_PTR_SHARED_PTR
-#pragma once

@@ -18,7 +18,7 @@ namespace AZ
         RHI::ResultCode WSISurface::BuildNativeSurface()
         {
             Instance& instance = Instance::GetInstance();
-            const HINSTANCE hinstance = GetModuleHandle(0);
+            const HINSTANCE hinstance = GetModuleHandle(nullptr);
 
             VkWin32SurfaceCreateInfoKHR createInfo{};
             createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -26,11 +26,11 @@ namespace AZ
             createInfo.flags = 0;
             createInfo.hinstance = hinstance;
             createInfo.hwnd = reinterpret_cast<HWND>(m_descriptor.m_windowHandle.GetIndex());
-            const VkResult result = instance.GetContext().CreateWin32SurfaceKHR(
+            const VkResult vkResult = instance.GetContext().CreateWin32SurfaceKHR(
                 instance.GetNativeInstance(), &createInfo, VkSystemAllocator::Get(), &m_nativeSurface);
-            AssertSuccess(result);
+            VK_RESULT_ASSERT(vkResult);
 
-            return ConvertResult(result);
+            return ConvertResult(vkResult);
         }
     }
 }

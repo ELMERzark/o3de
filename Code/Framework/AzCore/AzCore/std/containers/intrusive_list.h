@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZSTD_INTRUSIVE_LIST_H
-#define AZSTD_INTRUSIVE_LIST_H 1
+
+#pragma once
 
 #include <AzCore/std/algorithm.h>
 #include <AzCore/std/createdestroy.h>
@@ -146,14 +146,14 @@ namespace AZStd
             AZ_FORCE_INLINE pointer operator->() const          { return m_node; }
             AZ_FORCE_INLINE this_type& operator++()
             {
-                AZSTD_CONTAINER_ASSERT(m_node != 0, "AZSTD::intrusive_list::const_iterator_impl invalid node!");
+                AZSTD_CONTAINER_ASSERT(m_node != nullptr, "AZSTD::intrusive_list::const_iterator_impl invalid node!");
                 m_node = Hook::to_node_ptr(m_node)->m_next;
                 return *this;
             }
 
             AZ_FORCE_INLINE this_type operator++(int)
             {
-                AZSTD_CONTAINER_ASSERT(m_node != 0, "AZSTD::intrusive_list::const_iterator_impl invalid node!");
+                AZSTD_CONTAINER_ASSERT(m_node != nullptr, "AZSTD::intrusive_list::const_iterator_impl invalid node!");
                 this_type temp = *this;
                 m_node = Hook::to_node_ptr(m_node)->m_next;
                 return temp;
@@ -206,14 +206,14 @@ namespace AZStd
             AZ_FORCE_INLINE pointer operator->() const { return base_type::m_node; }
             AZ_FORCE_INLINE this_type& operator++()
             {
-                AZSTD_CONTAINER_ASSERT(base_type::m_node != 0, "AZSTD::intrusive_list::iterator_impl invalid node!");
+                AZSTD_CONTAINER_ASSERT(base_type::m_node != nullptr, "AZSTD::intrusive_list::iterator_impl invalid node!");
                 base_type::m_node = Hook::to_node_ptr(base_type::m_node)->m_next;
                 return *this;
             }
 
             AZ_FORCE_INLINE this_type operator++(int)
             {
-                AZSTD_CONTAINER_ASSERT(base_type::m_node != 0, "AZSTD::intrusive_list::iterator_impl invalid node!");
+                AZSTD_CONTAINER_ASSERT(base_type::m_node != nullptr, "AZSTD::intrusive_list::iterator_impl invalid node!");
                 this_type temp = *this;
                 base_type::m_node = Hook::to_node_ptr(base_type::m_node)->m_next;
                 return temp;
@@ -221,7 +221,7 @@ namespace AZStd
 
             AZ_FORCE_INLINE this_type& operator--()
             {
-                AZSTD_CONTAINER_ASSERT(base_type::m_node != 0, "AZSTD::intrusive_list::iterator_impl invalid node!");
+                AZSTD_CONTAINER_ASSERT(base_type::m_node != nullptr, "AZSTD::intrusive_list::iterator_impl invalid node!");
                 base_type::m_node = Hook::to_node_ptr(base_type::m_node)->m_prev;
                 return *this;
             }
@@ -440,12 +440,12 @@ namespace AZStd
             return const_iterator(AZSTD_CHECKED_ITERATOR(const_iterator_impl, const_cast<this_type&>(*this).get_head()));
         }
         AZ_FORCE_INLINE reverse_iterator rbegin()
-        { 
+        {
             hook_node_ptr_type headHook = Hook::to_node_ptr(get_head());
             return reverse_iterator(AZSTD_CHECKED_ITERATOR(reverse_iterator<iterator>, headHook->m_prev));
         }
         AZ_FORCE_INLINE const_reverse_iterator rbegin() const
-        { 
+        {
             const hook_node_type* headHook = Hook::to_node_ptr(const_cast<this_type&>(*this).get_head());
             return const_reverse_iterator(AZSTD_CHECKED_ITERATOR(reverse_iterator<const_iterator>, headHook->m_prev));
         }
@@ -455,12 +455,12 @@ namespace AZStd
             return const_reverse_iterator(AZSTD_CHECKED_ITERATOR(reverse_iterator<const_iterator>, headHook->m_prev));
         }
         AZ_FORCE_INLINE reverse_iterator rend()
-        { 
+        {
             node_ptr_type head = get_head();
             return reverse_iterator(AZSTD_CHECKED_ITERATOR(reverse_iterator<iterator>, head));
         }
         AZ_FORCE_INLINE const_reverse_iterator rend() const
-        { 
+        {
             return const_reverse_iterator(AZSTD_CHECKED_ITERATOR(reverse_iterator<const_iterator>, const_cast<this_type&>(*this).get_head()));
         }
         const_reverse_iterator crend() const
@@ -483,7 +483,7 @@ namespace AZStd
             pointer node = const_cast<pointer>(&value);
             hook_node_ptr_type nodeHook = Hook::to_node_ptr(node);
 #ifdef AZ_DEBUG_BUILD
-            AZSTD_CONTAINER_ASSERT(nodeHook->m_prev == 0 && nodeHook->m_next == 0, "AZStd::intrusive_list::insert - this node is already in a list, erase it first.");
+            AZSTD_CONTAINER_ASSERT(nodeHook->m_prev == nullptr && nodeHook->m_next == nullptr, "AZStd::intrusive_list::insert - this node is already in a list, erase it first.");
 #endif
 #ifdef AZSTD_HAS_CHECKED_ITERATORS
             node_ptr_type insNode = insertPos.get_iterator().m_node;
@@ -516,7 +516,7 @@ namespace AZStd
             pointer node = const_cast<pointer>(&value);
             hook_node_ptr_type nodeHook = Hook::to_node_ptr(node);
 #ifdef AZ_DEBUG_BUILD
-            AZSTD_CONTAINER_ASSERT(nodeHook->m_prev != 0 && nodeHook->m_next != 0, "AZStd::intrusive_list::erase - this node is not in a list.");
+            AZSTD_CONTAINER_ASSERT(nodeHook->m_prev != nullptr && nodeHook->m_next != nullptr, "AZStd::intrusive_list::erase - this node is not in a list.");
 #endif
             node_ptr_type prevNode = nodeHook->m_prev;
             node_ptr_type nextNode = nodeHook->m_next;
@@ -573,7 +573,7 @@ namespace AZStd
             {
                 hook_node_ptr_type curHook = Hook::to_node_ptr(cur);
                 cur = curHook->m_next;
-                curHook->m_next = curHook->m_prev = 0;
+                curHook->m_next = curHook->m_prev = nullptr;
             }
 
             headHook->m_next = headHook->m_prev = head;
@@ -1003,7 +1003,7 @@ namespace AZStd
          * So at this stage we consider the wasting a memory for a fake root node as the best solution, while we can debug the container.
          * This can change internally at any moment if needed, no interface change will occur.
          */
-        typename aligned_storage<sizeof(node_type), alignment_of<node_type>::value>::type m_root;
+        typename aligned_storage<sizeof(node_type), alignment_of_v<node_type>>::type m_root;
 
         inline node_ptr_type get_head() { return reinterpret_cast<node_ptr_type>(&m_root); }
 
@@ -1058,6 +1058,3 @@ namespace AZStd
         return !(&left == &right);
     }
 }
-
-#endif // AZSTD_INTRUSIVE_LIST_H
-#pragma once

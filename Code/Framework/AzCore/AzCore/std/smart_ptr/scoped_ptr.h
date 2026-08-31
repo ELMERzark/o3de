@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZSTD_SMART_PTR_SCOPED_PTR_H
-#define AZSTD_SMART_PTR_SCOPED_PTR_H
+
+#pragma once
 
 //  (C) Copyright Greg Colvin and Beman Dawes 1998, 1999.
 //  Copyright (c) 2001, 2002 Peter Dimov
@@ -91,7 +91,7 @@ namespace AZStd
 
         T* operator->() const  // never throws
         {
-            AZ_Assert(px != 0, "You can't access a null pointer");
+            AZ_Assert(px != nullptr, "You can't access a null pointer");
             return px;
         }
 
@@ -105,7 +105,7 @@ namespace AZStd
             return px == 0 ? 0 : &this_type::px;
         }                                                                              // never throws
         // operator! is redundant, but some compilers need it
-        bool operator! () const { return px == 0; } // never throws
+        bool operator! () const { return px == nullptr; } // never throws
 
         void swap(scoped_ptr& b)  // never throws
         {
@@ -129,6 +129,3 @@ namespace AZStd
         return p.get();
     }
 } // namespace AZStd
-
-#endif // #ifndef AZSTD_SMART_PTR_SCOPED_PTR_H
-#pragma once

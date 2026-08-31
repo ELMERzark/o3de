@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZSTD_SMART_PTR_MAKE_SHARED_H
-#define AZSTD_SMART_PTR_MAKE_SHARED_H
+
+#pragma once
 
 //  make_shared.hpp
 //
@@ -31,7 +31,7 @@ namespace AZStd
         {
         private:
 
-            typedef typename AZStd::aligned_storage< sizeof(T), ::AZStd::alignment_of< T >::value >::type storage_type;
+            typedef typename AZStd::aligned_storage< sizeof(T), ::AZStd::alignment_of_v< T > >::type storage_type;
 
             bool initialized_;
             storage_type storage_;
@@ -94,7 +94,7 @@ namespace AZStd
     template< class T >
     AZStd::shared_ptr< T > make_shared()
     {
-        AZStd::shared_ptr< T > pt(static_cast< T* >(0), AZStd::Internal::sp_inplace_tag< AZStd::Internal::sp_ms_deleter< T > >());
+        AZStd::shared_ptr< T > pt(static_cast< T* >(nullptr), AZStd::Internal::sp_inplace_tag< AZStd::Internal::sp_ms_deleter< T > >());
 
         AZStd::Internal::sp_ms_deleter< T >* pd = AZStd::get_deleter< AZStd::Internal::sp_ms_deleter< T > >(pt);
 
@@ -112,7 +112,7 @@ namespace AZStd
     template< class T, class A >
     AZStd::shared_ptr< T > allocate_shared(A const& a)
     {
-        AZStd::shared_ptr< T > pt(static_cast< T* >(0), AZStd::Internal::sp_inplace_tag< AZStd::Internal::sp_ms_deleter< T > >(), a);
+        AZStd::shared_ptr< T > pt(static_cast< T* >(nullptr), AZStd::Internal::sp_inplace_tag< AZStd::Internal::sp_ms_deleter< T > >(), a);
 
         AZStd::Internal::sp_ms_deleter< T >* pd = AZStd::get_deleter< AZStd::Internal::sp_ms_deleter< T > >(pt);
 
@@ -131,7 +131,7 @@ namespace AZStd
     template< class T, class ... Args >
     AZStd::shared_ptr< T > make_shared(Args&& ... args)
     {
-        AZStd::shared_ptr< T > pt(static_cast< T* >(0), AZStd::Internal::sp_inplace_tag<AZStd::Internal::sp_ms_deleter< T > >());
+        AZStd::shared_ptr< T > pt(static_cast< T* >(nullptr), AZStd::Internal::sp_inplace_tag<AZStd::Internal::sp_ms_deleter< T > >());
 
         AZStd::Internal::sp_ms_deleter< T >* pd = AZStd::get_deleter< AZStd::Internal::sp_ms_deleter< T > >(pt);
 
@@ -149,7 +149,7 @@ namespace AZStd
     template< class T, class A, class Arg1, class ... Args >
     AZStd::shared_ptr< T > allocate_shared(A const& a, Arg1&& arg1, Args&& ... args)
     {
-        AZStd::shared_ptr< T > pt(static_cast<T*>(0), AZStd::Internal::sp_inplace_tag<AZStd::Internal::sp_ms_deleter< T > >(), a);
+        AZStd::shared_ptr< T > pt(static_cast<T*>(nullptr), AZStd::Internal::sp_inplace_tag<AZStd::Internal::sp_ms_deleter< T > >(), a);
 
         AZStd::Internal::sp_ms_deleter< T >* pd = AZStd::get_deleter< AZStd::Internal::sp_ms_deleter< T > >(pt);
 
@@ -165,6 +165,3 @@ namespace AZStd
     }
 
 } // namespace AZStd
-
-#endif // #ifndef AZSTD_SMART_PTR_MAKE_SHARED_H
-#pragma once

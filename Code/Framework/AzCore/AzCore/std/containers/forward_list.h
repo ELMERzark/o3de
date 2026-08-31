@@ -61,21 +61,21 @@ namespace AZStd
         typedef base_node_type*                     base_node_ptr_type;
 
         AZ_FORCE_INLINE forward_list_iterator()
-            : m_node(0) {}
+            : m_node(nullptr) {}
         AZ_FORCE_INLINE explicit forward_list_iterator(base_node_ptr_type baseNode)
             : m_node(baseNode) {}
         AZ_FORCE_INLINE reference operator*() const { return static_cast<node_ptr_type>(m_node)->m_value; }
         AZ_FORCE_INLINE pointer operator->() const { return &static_cast<node_ptr_type>(m_node)->m_value; }
         AZ_FORCE_INLINE this_type& operator++()
         {
-            AZSTD_CONTAINER_ASSERT(m_node != 0, "AZSTD::forward_list::const_iterator_impl invalid node!");
+            AZSTD_CONTAINER_ASSERT(m_node != nullptr, "AZSTD::forward_list::const_iterator_impl invalid node!");
             m_node = m_node->m_next;
             return *this;
         }
 
         AZ_FORCE_INLINE this_type operator++(int)
         {
-            AZSTD_CONTAINER_ASSERT(m_node != 0, "AZSTD::forward_list::const_iterator_impl invalid node!");
+            AZSTD_CONTAINER_ASSERT(m_node != nullptr, "AZSTD::forward_list::const_iterator_impl invalid node!");
             this_type temp = *this;
             m_node = m_node->m_next;
             return temp;
@@ -97,8 +97,11 @@ namespace AZStd
     // To allow incomplete types to be used with the const_iterator
     // the forward list iterator has specializations added for the basic_const_iterator
     // constraints
-    template<class I>
-    inline constexpr bool input_or_output_iterator<forward_list_iterator<I>> = true;
+    namespace Internal
+    {
+        template<class I>
+        inline constexpr bool input_or_output_iterator_override<forward_list_iterator<I>> = true;
+    }
 
     /**
     * The list container (single linked list) is complaint with \ref CStd (23.2.2). In addition we introduce the following \ref ListExtensions "extensions".
@@ -205,7 +208,7 @@ namespace AZStd
             insert_after_iter(before_begin(), first, last, is_integral<InputIterator>());
         }
 
-        template<class R, class = enable_if_t<Internal::container_compatible_range<R, value_type>>>
+        template<Internal::container_compatible_range<value_type> R>
         forward_list(from_range_t, R&& rg, const allocator_type& alloc = allocator_type())
             : m_allocator(alloc)
         {
@@ -269,8 +272,8 @@ namespace AZStd
             assign_iter(first, last, is_integral<InputIterator>());
         }
 
-        template<class R>
-        auto assign_range(R&& rg) -> enable_if_t<Internal::container_compatible_range<R, value_type>>
+        template<Internal::container_compatible_range<value_type> R>
+        void assign_range(R&& rg)
         {
             if constexpr (is_lvalue_reference_v<R>)
             {
@@ -360,8 +363,8 @@ namespace AZStd
         }
         void pop_front() { erase_after(before_begin()); }
 
-        template<class R>
-        auto prepend_range(R&& rg) -> enable_if_t<Internal::container_compatible_range<R, value_type>>
+        template<Internal::container_compatible_range<value_type> R>
+        void prepend_range(R&& rg)
         {
             insert_range_after(before_begin(), AZStd::forward<R>(rg));
         }
@@ -380,8 +383,8 @@ namespace AZStd
             return *emplace_after(before_end(), AZStd::forward<Args>(args)...);
         }
 
-        template<class R>
-        auto append_range(R&& rg) -> enable_if_t<Internal::container_compatible_range<R, value_type>>
+        template<Internal::container_compatible_range<value_type> R>
+        void append_range(R&& rg)
         {
             insert_range_after(before_end(), AZStd::forward<R>(rg));
         }
@@ -415,9 +418,8 @@ namespace AZStd
             return insert_after_iter(insertPos, first, last, is_integral<InputIterator>());
         }
 
-        template<class R>
-        auto insert_range_after(const_iterator insertPos, R&& rg)
-            -> enable_if_t<Internal::container_compatible_range<R, value_type>, iterator>
+        template<Internal::container_compatible_range<value_type> R>
+        iterator insert_range_after(const_iterator insertPos, R&& rg)
         {
             if constexpr (is_lvalue_reference_v<R>)
             {
@@ -521,7 +523,7 @@ namespace AZStd
             base_node_ptr_type node = toEraseNext.base().get_iterator().m_node;
             orphan_node(node);
 #else
-            AZSTD_CONTAINER_ASSERT(toEraseNext.base().m_node != 0, "AZStd::forward_list::erase_after - invalid node!");
+            AZSTD_CONTAINER_ASSERT(toEraseNext.base().m_node != nullptr, "AZStd::forward_list::erase_after - invalid node!");
             base_node_ptr_type prevNode = toEraseNext.base().m_node;
             base_node_ptr_type node = prevNode->m_next;
 #endif
@@ -1146,7 +1148,7 @@ namespace AZStd
     protected:
         AZ_FORCE_INLINE void    deallocate_node(node_ptr_type node)
         {
-            m_allocator.deallocate(node, sizeof(node_type), alignment_of<node_type>::value);
+            m_allocator.deallocate(node, sizeof(node_type), alignment_of_v<node_type>);
         }
 
         /**
@@ -1166,7 +1168,7 @@ namespace AZStd
             {
                 node = node->m_next;
                 // This check makes sense for the linear forward_list only.
-                AZSTD_CONTAINER_ASSERT(node != 0, "This node it's not in the list or the list is corrupted!");
+                AZSTD_CONTAINER_ASSERT(node != nullptr, "This node it's not in the list or the list is corrupted!");
             }
             return node;
         }
@@ -1268,7 +1270,7 @@ namespace AZStd
     forward_list(InputIt, InputIt, Alloc = Alloc{})
         -> forward_list<iter_value_t<InputIt>, Alloc>;
 
-    template<class R, class Alloc = allocator, class = enable_if_t<ranges::input_range<R>>>
+    template<ranges::input_range R, class Alloc = allocator>
     forward_list(from_range_t, R&&, Alloc = Alloc{})
         -> forward_list<ranges::range_value_t<R>, Alloc>;
 

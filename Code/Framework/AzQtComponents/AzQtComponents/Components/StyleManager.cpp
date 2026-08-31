@@ -126,6 +126,28 @@ namespace AzQtComponents
         StyleManager::styleSheetStyle(widget)->polish(widget);
     }
 
+    bool StyleManager::setObjectProperty(QWidget* widget, const char* propertyName, const QVariant& value)
+    {
+        if (!widget)
+        {
+            return false;
+        }
+
+        if (!propertyName)
+        {
+            return false;
+        }
+
+        if (widget->property(propertyName) == value)
+        {
+            return false;
+        }
+
+        widget->setProperty(propertyName, value);
+        return true;
+    }
+
+
     StyleManager::StyleManager(QObject* parent)
         : QObject(parent)
         , m_stylesheetPreprocessor(new StylesheetPreprocessor(this))
@@ -144,7 +166,6 @@ namespace AzQtComponents
 
         if (m_style)
         {
-            delete m_style.data();
             m_style.clear();
         }
     }
@@ -173,12 +194,12 @@ namespace AzQtComponents
         m_autoCustomWindowDecorations = new AutoCustomWindowDecorations(this);
         m_autoCustomWindowDecorations->setMode(AutoCustomWindowDecorations::Mode_AnyWindow);
 
-        // Order matters, need to setStylesheet() first, then when we call setStyle()
-        // QT 6.8.3 implementation will create a (private) QStyleSheetStyle with our stylesheet, and use our custom QStyle class below.
+        // Order matters: set the .qss stylesheet first so that Qt creates a (private) QStyleSheetStyle
         const auto globalStyleSheet = m_stylesheetCache->loadStyleSheet(g_globalStyleSheetName.toString());
         application->setStyleSheet(globalStyleSheet);
 
-        // Style is chained as: Style -> QStyleSheetStyle -> native, meaning any CSS limitation can be tackled in Style.cpp
+        // The resulting style chain is: QStyleSheetStyle -> Style (our custom class) -> native base.
+        // Anything not handled in via QStyleSheetStyle will be able to fallback in our custom Style class.
         m_style = new Style(createBaseStyle());
 
         QApplication::setStyle(m_style);

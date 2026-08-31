@@ -75,7 +75,7 @@ namespace AZStd
         AZ_Assert(m_allocator.is_stale_read_allowed(), "Allocator for lock_free_stamped_stack must allow stale reads");
 
         stamped_node_ptr nodeStamp;
-        nodeStamp.m_node = NULL;
+        nodeStamp.m_node = nullptr;
         nodeStamp.m_stamp = 0;
         m_top.store(nodeStamp, memory_order_release);
     }
@@ -143,7 +143,7 @@ namespace AZStd
     template<typename T, typename Allocator>
     inline bool lock_free_stamped_stack<T, Allocator>::empty() const
     {
-        return (m_top.load(memory_order_acquire).m_node == NULL);
+        return (m_top.load(memory_order_acquire).m_node == nullptr);
     }
 
     template<typename T, typename Allocator>
@@ -159,7 +159,7 @@ namespace AZStd
     inline void lock_free_stamped_stack<T, Allocator>::destroy_node(node_ptr_type node)
     {
         node->~node_type();
-        m_allocator.deallocate(node, sizeof(node_type), alignment_of<node_type>::value);
+        m_allocator.deallocate(node, sizeof(node_type), alignment_of_v<node_type>);
     }
 }
 

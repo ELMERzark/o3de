@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
+
 #pragma once
 
 #include <AzCore/std/string/string.h>
@@ -142,7 +143,7 @@ namespace AZStd
     }
     // 21.5: numeric conversions
     template<class Allocator>
-    int stoi(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = 0, int base = 10)
+    int stoi(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr, int base = 10)
     {
         char* ptr;
         const char* sChar = str.c_str();
@@ -154,7 +155,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    long stol(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = 0, int base = 10)
+    long stol(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr, int base = 10)
     {
         char* ptr;
         const char* sChar = str.c_str();
@@ -166,7 +167,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    unsigned long stoul(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = 0, int base = 10)
+    unsigned long stoul(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr, int base = 10)
     {
         char* ptr;
         const char* sChar = str.c_str();
@@ -178,7 +179,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    long long stoll(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, size_t* idx = 0, int base = 10)
+    long long stoll(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, size_t* idx = nullptr, int base = 10)
     {
         char* ptr;
         const char* sChar = str.c_str();
@@ -190,7 +191,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    unsigned long long stoull(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, size_t* idx = 0, int base = 10)
+    unsigned long long stoull(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, size_t* idx = nullptr, int base = 10)
     {
         char* ptr;
         const char* sChar = str.c_str();
@@ -203,7 +204,7 @@ namespace AZStd
     }
 
     template<class Allocator>
-    float stof(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = 0)
+    float stof(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr)
     {
         AZ::Locale::ScopedSerializationLocale scopedLocale; // invariant locale for converting strings to values.
 
@@ -217,7 +218,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    double stod(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = 0)
+    double stod(const AZStd::basic_string<AZStd::string::value_type, AZStd::string::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr)
     {
         AZ::Locale::ScopedSerializationLocale scopedLocale; // invariant locale for converting strings to values.
         char* ptr;
@@ -297,8 +298,9 @@ namespace AZStd
     }
 
     template<class Str, class BoolType>
+        requires same_as<remove_cvref_t<BoolType>, bool>
     auto to_string(Str& str, BoolType value)
-        -> enable_if_t<same_as<remove_cvref_t<BoolType>, bool>>
+        -> void
     {
         str = value ? "true" : "false";
     }
@@ -313,7 +315,8 @@ namespace AZStd
     inline AZStd::string to_string(unsigned long long val)  { AZStd::string str; to_string(str, val); return str; }
     inline AZStd::string to_string(long double val)         { AZStd::string str; to_string(str, val); return str; }
     template<class BoolType>
-    auto to_string(BoolType value) -> enable_if_t<same_as<remove_cvref_t<BoolType>, bool>, AZStd::string>
+        requires same_as<remove_cvref_t<BoolType>, bool>
+    auto to_string(BoolType value) -> AZStd::string
     {
         AZStd::string str;
         to_string(str, value);
@@ -350,7 +353,7 @@ namespace AZStd
     }
 
     template<class Allocator>
-    int stoi(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = 0, int base = 10)
+    int stoi(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr, int base = 10)
     {
         const wchar_t* sChar = str.c_str();
         wchar_t* ptr;
@@ -363,7 +366,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    long stol(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = 0, int base = 10)
+    long stol(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr, int base = 10)
     {
         const wchar_t* sChar = str.c_str();
         wchar_t* ptr;
@@ -375,7 +378,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    unsigned long stoul(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = 0, int base = 10)
+    unsigned long stoul(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr, int base = 10)
     {
         const wchar_t* sChar = str.c_str();
         wchar_t* ptr;
@@ -394,7 +397,7 @@ namespace AZStd
 
     }*/
     template<class Allocator>
-    float stof(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = 0)
+    float stof(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr)
     {
         wchar_t* ptr;
         const wchar_t* sChar = str.c_str();
@@ -406,7 +409,7 @@ namespace AZStd
         return result;
     }
     template<class Allocator>
-    double stod(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = 0)
+    double stod(const AZStd::basic_string<wstring::value_type, wstring::traits_type, Allocator>& str, AZStd::size_t* idx = nullptr)
     {
         wchar_t* ptr;
         const wchar_t* sChar = str.c_str();
@@ -544,10 +547,10 @@ namespace AZStd
         }
     }
 
-    template<class Range>
+    template<ranges::range Range>
+        requires indirectly_copyable<ranges::iterator_t<Range>, ranges::iterator_t<Range>>
     auto to_lower(Range&& r, const std::locale& loc = {})
-        -> enable_if_t<ranges::range<Range>
-            && indirectly_copyable<ranges::iterator_t<Range>, ranges::iterator_t<Range>>>
+        -> void
     {
         to_lower(ranges::begin(r), ranges::end(r), loc);
     }
@@ -562,10 +565,10 @@ namespace AZStd
         }
     }
 
-    template<class Range>
+    template<ranges::range Range>
+        requires indirectly_copyable<ranges::iterator_t<Range>, ranges::iterator_t<Range>>
     auto to_upper(Range&& r, const std::locale& loc = {})
-        -> enable_if_t<ranges::range<Range>
-            && indirectly_copyable<ranges::iterator_t<Range>, ranges::iterator_t<Range>>>
+        -> void
     {
         to_upper(ranges::begin(r), ranges::end(r), loc);
     }

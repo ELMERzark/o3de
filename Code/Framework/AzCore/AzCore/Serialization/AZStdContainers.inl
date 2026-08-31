@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZCORE_SERIALIZE_AZSTD_CONTAINERS_INL
-#define AZCORE_SERIALIZE_AZSTD_CONTAINERS_INL
+
+#pragma once
 
 #include <AzCore/Outcome/Outcome.h>
 #include <AzCore/Memory/OSAllocator.h>
@@ -60,7 +60,8 @@ namespace AZStd
         template<class T, class = void>
         constexpr bool IsMapType_v = false;
         template<class T>
-        constexpr bool IsMapType_v<T, enable_if_t<Internal::sfinae_trigger_v<typename T::mapped_type>>> = true;
+            requires requires { typename T::mapped_type; }
+        constexpr bool IsMapType_v<T, void> = true;
 
         template <class T>
         constexpr bool IsOrderedSetImpl_v = false;
@@ -2133,7 +2134,7 @@ namespace AZ
                 {
                     workBuffer[0] = text[0];
                     workBuffer[1] = text[1];
-                    AZ::u8 value = static_cast<AZ::u8>(strtoul(workBuffer, NULL, 16));
+                    AZ::u8 value = static_cast<AZ::u8>(strtoul(workBuffer, nullptr, 16));
                     stream.Write(sizeof(AZ::u8), &value);
                 }
                 return minDataSize;
@@ -3926,6 +3927,3 @@ namespace AZ
         }
     };
 }
-
-#endif // AZCORE_SERIALIZE_AZSTD_CONTAINERS_H
-#pragma once

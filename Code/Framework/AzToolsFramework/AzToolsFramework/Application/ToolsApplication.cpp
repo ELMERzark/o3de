@@ -81,6 +81,7 @@
 #include <AzToolsFramework/Viewport/ViewBookmarkSystemComponent.h>
 #include <AzToolsFramework/Viewport/ViewportMessages.h>
 #include <AzToolsFramework/ViewportSelection/EditorInteractionSystemComponent.h>
+#include <AzToolsFramework/ViewportSnapping/ViewportSnappingSystemComponent.h>
 #include <AzToolsFramework/ViewportSelection/EditorTransformComponentSelectionRequestBus.h>
 
 #include <Entity/EntityUtilityComponent.h>
@@ -230,6 +231,7 @@ namespace AzToolsFramework
                 azrtti_typeid<AzToolsFramework::AzToolsFrameworkConfigurationSystemComponent>(),
                 azrtti_typeid<Components::EditorEntityModelComponent>(),
                 azrtti_typeid<AzToolsFramework::EditorInteractionSystemComponent>(),
+                azrtti_typeid<AzToolsFramework::ViewportSnapping::ViewportSnappingSystemComponent>(),
                 azrtti_typeid<Components::EditorEntitySearchComponent>(),
                 azrtti_typeid<Components::EditorIntersectorComponent>(),
                 azrtti_typeid<AzToolsFramework::SliceRequestComponent>(),
@@ -1301,9 +1303,17 @@ namespace AzToolsFramework
             searchNode = searchNode->GetParent(); // walk up the tree.
         }
 
-        // note that when resuming an undo batch, we do not pop any values, this allows the node to
-        // continue adding data to nodes without creating new undos.
-        // we only create a new undo node if the one we are trying to resume is not anywhere in the current undo tree.
+        // if we just finished an undo, and its the top operation or contains the resume operation, reopen it.
+        // note that we re-attach the root to the current undo batch, but we return the child found.
+        UndoSystem::URSequencePoint* topOperation = m_undoStack->GetTop();
+        if (topOperation)
+        {
+            if (UndoSystem::URSequencePoint* searcher = topOperation->Find(expected); searcher)
+            {
+                m_currentBatchUndo = m_undoStack->PopTop();
+                return searcher;
+            }
+        }
 
         return BeginUndoBatch(label);
     }

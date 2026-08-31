@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
-#ifndef AZSTD_SP_CONVERTIBLE_DELETE_H
-#define AZSTD_SP_CONVERTIBLE_DELETE_H
+
+#pragma once
 
 #include <AzCore/std/base.h>
 
@@ -26,7 +26,7 @@ namespace AZStd
 
             enum _vt
             {
-                value = sizeof((f)(static_cast<Y*>(0))) == sizeof(yes)
+                value = sizeof((f)(static_cast<Y*>(nullptr))) == sizeof(yes)
             };
         };
         struct sp_empty {};
@@ -47,6 +47,3 @@ namespace AZStd
         {};
     }
 } // namespace AZStd
-
-#endif  // #ifndef AZSTD_SP_CONVERTIBLE_DELETE_H
-#pragma once

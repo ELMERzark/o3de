@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
+
 #pragma once
 
 //
@@ -81,24 +82,25 @@ namespace AZStd
         typedef T   value_type;
 
         intrusive_ptr()
-            : px(0)
+            : px(nullptr)
         {
         }
 
         intrusive_ptr(T* p)
             : px(p)
         {
-            if (px != 0)
+            if (px != nullptr)
             {
                 CountPolicy::add_ref(px);
             }
         }
 
         template<class U>
-        intrusive_ptr(intrusive_ptr<U> const& rhs, enable_if_t<is_convertible<U*, T*>::value, int> = 0)
+            requires is_convertible_v<U*, T*>
+        intrusive_ptr(intrusive_ptr<U> const& rhs)
             : px(rhs.get())
         {
-            if (px != 0)
+            if (px != nullptr)
             {
                 CountPolicy::add_ref(px);
             }
@@ -106,7 +108,7 @@ namespace AZStd
         intrusive_ptr(intrusive_ptr const& rhs)
             : px(rhs.px)
         {
-            if (px != 0)
+            if (px != nullptr)
             {
                 CountPolicy::add_ref(px);
             }
@@ -114,33 +116,36 @@ namespace AZStd
 
         ~intrusive_ptr()
         {
-            if (px != 0)
+            if (px != nullptr)
             {
                 CountPolicy::release(px);
             }
         }
 
         template<class U>
-        enable_if_t<is_convertible<U*, T*>::value, intrusive_ptr&> operator=(intrusive_ptr<U> const& rhs)
+            requires is_convertible_v<U*, T*>
+        auto operator=(intrusive_ptr<U> const& rhs) -> intrusive_ptr&
         {
             this_type(rhs).swap(*this);
             return *this;
         }
 
         template<class U>
-        intrusive_ptr(intrusive_ptr<U>&& rhs, enable_if_t<is_convertible<U*, T*>::value, int> = 0)
+            requires is_convertible_v<U*, T*>
+        intrusive_ptr(intrusive_ptr<U>&& rhs)
             : px(rhs.get())
         {
-            rhs.px = 0;
+            rhs.px = nullptr;
         }
         intrusive_ptr(intrusive_ptr&& rhs)
             : px(rhs.px)
         {
-            rhs.px = 0;
+            rhs.px = nullptr;
         }
 
         template<class U>
-        enable_if_t<is_convertible<U*, T*>::value, intrusive_ptr&> operator=(intrusive_ptr<U>&& rhs)
+            requires is_convertible_v<U*, T*>
+        auto operator=(intrusive_ptr<U>&& rhs) -> intrusive_ptr&
         {
             this_type(AZStd::move(rhs)).swap(*this);
             return *this;
@@ -180,23 +185,23 @@ namespace AZStd
 
         T& operator*() const
         {
-            AZ_Assert(px != 0, "You can't dereference a null pointer");
+            AZ_Assert(px != nullptr, "You can't dereference a null pointer");
             return *px;
         }
 
         T* operator->() const
         {
-            AZ_Assert(px != 0, "You can't dereference a null pointer");
+            AZ_Assert(px != nullptr, "You can't dereference a null pointer");
             return px;
         }
 
         typedef T* this_type::* unspecified_bool_type;
         operator unspecified_bool_type() const {
-            return px == 0 ? 0 : &this_type::px;
+            return px == nullptr ? nullptr : &this_type::px;
         }                                                                              // never throws
 
         // operator! is redundant, but some compilers need it
-        bool operator! () const { return px == 0; } // never throws
+        bool operator! () const { return px == nullptr; } // never throws
 
         void swap(intrusive_ptr& rhs)
         {
